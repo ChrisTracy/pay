@@ -39,23 +39,23 @@ h1{font:700 clamp(28px,6vw,40px)/1.05 var(--display);margin:6px 0 4px;letter-spa
 .setup code{font-family:var(--mono);font-size:13px;color:var(--fg)}
 
 /* amount picker */
-.amount{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.amount{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
 .amount-label{font-weight:600;margin-right:4px}
 .chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);
   font:500 15px/1 var(--body);padding:10px 14px;border-radius:999px;cursor:pointer;font-variant-numeric:tabular-nums;min-height:40px}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .custom{display:flex;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;min-height:40px}
 .custom span{color:var(--muted)}
-.custom input{width:5.5ch;border:0;background:transparent;color:var(--fg);font:500 15px var(--body);padding:8px 2px;outline:none;font-variant-numeric:tabular-nums}
+.custom input{width:6.5ch;border:0;background:transparent;color:var(--fg);font:500 16px var(--body);padding:8px 2px;outline:none;font-variant-numeric:tabular-nums}
 .custom:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
 .amount-hint{flex-basis:100%;font-size:13px;color:var(--muted);margin:0}
 
 /* grid of methods: reflows automatically as items are added/removed */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch;grid-auto-rows:1fr;
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch;
   list-style:none;margin:0;padding:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;
   display:flex;flex-direction:column;gap:14px;min-width:0}
-.top{display:flex;align-items:center;gap:12px;min-width:0}
+.top{display:flex;align-items:flex-start;gap:12px;min-width:0}
 .badge{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
   font:700 19px/1 var(--display)}
 .meta{min-width:0;flex:1}
@@ -83,6 +83,37 @@ h1{font:700 clamp(28px,6vw,40px)/1.05 var(--display);margin:6px 0 4px;letter-spa
 .sheet small{font-size:13px;color:var(--muted)}
 .sheet .btn{width:100%;flex:none}
 
+.net{font-size:12.5px;color:var(--muted);margin-top:4px}
+a,button,input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (max-width:560px){
+  .wrap{gap:16px;padding-top:20px}
+  .avatar{width:52px;height:52px;border-radius:16px;font-size:21px}
+  .who{gap:14px}
+  .amount{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:8px;padding:14px}
+  .amount-label,.custom,.amount-hint{grid-column:1/-1}
+  .chip{padding:10px 0;min-height:44px}
+  .custom{min-height:44px}
+  .custom input{flex:1;width:auto;min-width:0}
+  .card{padding:14px;gap:12px}
+}
+/* very narrow: fold cover screens, small phones */
+@media (max-width:360px){
+  .wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .avatar{width:44px;height:44px;border-radius:14px;font-size:18px}
+  h1{font-size:26px}
+  .amount,.card{padding:12px}
+  .actions{flex-wrap:wrap}
+  .actions .btn.primary{flex:1 1 100%}
+  .badge{width:38px;height:38px;border-radius:10px;font-size:17px}
+}
+/* short screens: phones in landscape */
+@media (max-height:480px){
+  .sheet{overflow:auto;place-items:safe center}
+  .sheet-card{padding:14px;gap:8px}
+  .qr-box img,.qr-box canvas{width:150px;height:150px}
+}
+.foot{text-align:left}
+}
 .foot{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
@@ -107,13 +138,13 @@ h1{font:700 clamp(28px,6vw,40px)/1.05 var(--display);margin:6px 0 4px;letter-spa
   <section class="amount" id="amount" aria-label="Amount" hidden>
     <span class="amount-label">Amount</span>
     <div id="chips" style="display:contents"></div>
-    <label class="custom" for="customAmt"><span>$</span><input id="customAmt" inputmode="decimal" placeholder="Other" aria-label="Custom amount"></label>
-    <p class="amount-hint">Fills in the amount on Venmo, Cash App and PayPal. Optional.</p>
+    <label class="custom" for="customAmt"><span>$</span><input id="customAmt" inputmode="decimal" placeholder="Other amount" aria-label="Custom amount"></label>
+    <p class="amount-hint" id="amountHint"></p>
   </section>
 
   <ul class="grid" id="grid"></ul>
 
-  <p class="foot">Double-check the handle before you send. Payments can't be pulled back.</p>
+  <p class="foot">Check the name or address before you send. Payments can't be reversed.</p>
 </div>
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -164,10 +195,10 @@ const TYPES = {
              url:m=> `https://ko-fi.com/${encodeURIComponent(m.handle)}` },
   zelle:   { label:"Zelle",    letter:"Z", color:"#6d1ed4", fg:"#fff", show:m=>m.handle, hint:"Send from your bank app" },
   applecash:{label:"Apple Cash",letter:"A", color:"#1c1c1e", fg:"#fff", show:m=>m.handle, hint:"Send from Messages or Wallet" },
-  bitcoin: { label:"Bitcoin",  letter:"₿", color:"#f7931a", fg:"#2a1500", show:m=>m.address, crypto:"bitcoin", net:"BTC" },
-  ethereum:{ label:"Ethereum", letter:"Ξ", color:"#627eea", fg:"#fff", show:m=>m.address, crypto:"ethereum", net:"ETH / ERC-20" },
-  litecoin:{ label:"Litecoin", letter:"Ł", color:"#345d9d", fg:"#fff", show:m=>m.address, crypto:"litecoin", net:"LTC" },
-  solana:  { label:"Solana",   letter:"◎", color:"#14f195", fg:"#062016", show:m=>m.address, crypto:"solana", net:"SOL" },
+  bitcoin: { label:"Bitcoin",  letter:"₿", color:"#f7931a", fg:"#2a1500", show:m=>m.address, crypto:"bitcoin", net:"Bitcoin" },
+  ethereum:{ label:"Ethereum", letter:"Ξ", color:"#627eea", fg:"#fff", show:m=>m.address, crypto:"ethereum", net:"Ethereum" },
+  litecoin:{ label:"Litecoin", letter:"Ł", color:"#345d9d", fg:"#fff", show:m=>m.address, crypto:"litecoin", net:"Litecoin" },
+  solana:  { label:"Solana",   letter:"◎", color:"#14f195", fg:"#062016", show:m=>m.address, crypto:"solana", net:"Solana" },
 };
 
 const ICON = {
@@ -190,7 +221,7 @@ function resolve(m){
   const qrText = t.crypto ? `${t.crypto}:${m.address}` : (m.url || (t.url ? t.url(m, amount) : copyText));
   return { label:m.label||t.label||"Payment", letter:m.letter||t.letter||(m.label||"?")[0],
            color:m.color||t.color||"var(--accent)", fg:m.fg||t.fg||"#fff",
-           value, copyText, url, qrText, amt:!!t.amt, hint:m.hint||t.hint||(t.net?`Send on ${t.net} only`:""), crypto:!!t.crypto };
+           value, copyText, url, qrText, amt:!!t.amt, hint:m.hint||t.hint||(t.net?`${t.net} network only`:""), crypto:!!t.crypto };
 }
 
 function render(){
@@ -201,19 +232,22 @@ function render(){
   $("#setup").hidden = !SHOW_SETUP_NOTE;
   const anyAmt = METHODS.some(m => TYPES[m.type]?.amt);
   $("#amount").hidden = !(anyAmt && AMOUNTS.length);
+  const amtApps = METHODS.filter(m => TYPES[m.type]?.amt).map(m => TYPES[m.type].label);
+  const list = amtApps.length < 3 ? amtApps.join(" and ") : amtApps.slice(0,-1).join(", ") + " and " + amtApps.at(-1);
+  $("#amountHint").textContent = `Optional. Fills in the amount for you in ${list}.`;
   $("#chips").innerHTML = AMOUNTS.map(a => `<button class="chip" type="button" data-amt="${a}" aria-pressed="${amount===a}">$${a}</button>`).join("");
 
   $("#grid").innerHTML = METHODS.map((m,i) => {
     const r = resolve(m);
-    const openLabel = r.amt && amount ? `Pay $${fmt(amount)}` : "Open";
+    const openLabel = r.amt ? (amount ? `Pay $${fmt(amount)}` : "Pay") : "Open";
     return `<li class="card" data-i="${i}">
       <div class="top">
         <div class="badge" style="background:${esc(r.color)};color:${esc(r.fg)}" aria-hidden="true">${esc(r.letter)}</div>
-        <div class="meta"><div class="name">${esc(r.label)}</div><div class="handle">${esc(r.value)}</div></div>
+        <div class="meta"><div class="name">${esc(r.label)}</div><div class="handle">${esc(r.value)}</div>${r.crypto ? `<div class="net">${esc(r.hint)}</div>` : ""}</div>
       </div>
       <div class="actions">
         ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">${openLabel} ${ICON.open}</a>` : ""}
-        <button class="btn${r.url?"":" primary"}" type="button" data-act="copy">${ICON.copy}<span>Copy</span></button>
+        <button class="btn${r.url?"":" primary"}" type="button" data-act="copy">${ICON.copy}<span>${r.crypto ? "Copy address" : "Copy"}</span></button>
         <button class="btn icon" type="button" data-act="qr" aria-label="Show QR code for ${esc(r.label)}">${ICON.qr}</button>
       </div>
     </li>`;
@@ -236,12 +270,12 @@ $("#grid").addEventListener("click", e => {
   if(btn.dataset.act === "copy"){
     const done = () => {
       btn.classList.add("done"); btn.innerHTML = ICON.check + "<span>Copied</span>";
-      toast(`${r.label} copied`);
-      setTimeout(()=>{ btn.classList.remove("done"); btn.innerHTML = ICON.copy + "<span>Copy</span>"; }, 1600);
+      toast(`${r.label} ${r.crypto ? "address" : "handle"} copied`);
+      setTimeout(()=>{ btn.classList.remove("done"); btn.innerHTML = ICON.copy + `<span>${r.crypto ? "Copy address" : "Copy"}</span>`; }, 1600);
     };
     const p = navigator.clipboard?.writeText(r.copyText);
-    if(p) p.then(done).catch(()=>{ selectText(card.querySelector(".handle")); toast("Selected. Press copy on your device"); });
-    else { selectText(card.querySelector(".handle")); toast("Selected. Press copy on your device"); }
+    if(p) p.then(done).catch(()=>{ selectText(card.querySelector(".handle")); toast("Couldn't copy. It's selected, so copy it yourself"); });
+    else { selectText(card.querySelector(".handle")); toast("Couldn't copy. It's selected, so copy it yourself"); }
   }
   if(btn.dataset.act === "qr") openQR(card.dataset.i);
 });
@@ -252,7 +286,7 @@ function openQR(i){
   if($("#sheet").hidden) lastFocus = document.activeElement;
   $("#sheetTitle").textContent = r.amt && amount ? `${r.label} · $${fmt(amount)}` : r.label;
   $("#sheetHandle").textContent = r.value;
-  $("#sheetHint").textContent = r.hint || "Scan with your phone camera";
+  $("#sheetHint").textContent = r.hint || "Scan with a phone camera";
   const box = $("#qrBox"); box.innerHTML = "";
   if(window.QRCode){
     new QRCode(box, { text:r.qrText, width:200, height:200, colorDark:"#000000", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
