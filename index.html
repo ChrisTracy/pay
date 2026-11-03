@@ -1,158 +1,166 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Pay Me Page</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pay Chris Tracy</title>
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1114" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap">
 <style>
-/* Layout: one narrow-to-wide column; header card, optional amount picker, then an auto-fill grid of method cards that reflows by count */
+/*
+  Design: one narrow column. The amount is the hero, typed straight into the page.
+  Methods are rows in a single list, not separate cards. Only apps that take an amount
+  get the dark "Pay" button; everything else uses a quiet button. Colour comes from the
+  app badges; green is reserved for "done" states.
+*/
 :root{
-  --bg:#eef1f5; --surface:#ffffff; --sunk:#e4e8ee; --fg:#141922; --muted:#5b6576;
-  --line:#d6dce5; --accent:#2b50e0; --accent-fg:#ffffff; --ok:#14804a;
+  --bg:#f3f4f6; --surface:#ffffff; --ink:#16181d; --muted:#646b77; --faint:#9aa0aa;
+  --line:#e3e6ea; --soft:#eef0f3; --ok:#0e7a55; --on-ink:#ffffff;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono:"DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --r:16px;
+  --mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1117; --surface:#171b24; --sunk:#1f2430; --fg:#e9edf4; --muted:#97a1b3;
-  --line:#2a3140; --accent:#7d97ff; --accent-fg:#0b1030; --ok:#4fd38d; color-scheme:dark }}
+  --bg:#0f1114; --surface:#181b20; --ink:#eceef1; --muted:#9aa1ac; --faint:#6b727d;
+  --line:#2a2f37; --soft:#22262d; --ok:#45c795; --on-ink:#0f1114; color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#0e1117; --surface:#171b24; --sunk:#1f2430; --fg:#e9edf4; --muted:#97a1b3;
-  --line:#2a3140; --accent:#7d97ff; --accent-fg:#0b1030; --ok:#4fd38d; color-scheme:dark }
+  --bg:#0f1114; --surface:#181b20; --ink:#eceef1; --muted:#9aa1ac; --faint:#6b727d;
+  --line:#2a2f37; --soft:#22262d; --ok:#45c795; --on-ink:#0f1114; color-scheme:dark }
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
-.wrap{max-width:980px;margin:0 auto;padding-block:clamp(20px,5vw,56px) 48px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  display:flex;flex-direction:column;gap:20px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+a,button,input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
 
-/* header */
-.who{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.avatar{width:64px;height:64px;border-radius:20px;background:var(--accent);color:var(--accent-fg);
-  display:grid;place-items:center;font:700 26px/1 var(--display);flex:none}
-.who-text{min-width:0;flex:1}
-.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-h1{font:700 clamp(28px,6vw,40px)/1.05 var(--display);margin:6px 0 4px;letter-spacing:-.01em;text-wrap:balance}
-.note{margin:0;color:var(--muted);max-width:60ch}
+.wrap{max-width:500px;margin:0 auto;
+  padding:max(36px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(40px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 
-.setup{background:var(--sunk);border:1px dashed var(--line);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--muted)}
-.setup code{font-family:var(--mono);font-size:13px;color:var(--fg)}
+/* ---------- hero: who + amount ---------- */
+.hero{text-align:center;padding:8px 0 28px}
+h1{font:600 21px/1.2 var(--display);margin:0;letter-spacing:-.005em}
+.photo{display:block;width:88px;height:88px;border-radius:50%;object-fit:cover;margin:0 auto 14px;background:var(--soft);box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--line)}
+.note{margin:6px auto 0;color:var(--muted);max-width:36ch;text-wrap:pretty;font-size:15px}
 
-/* amount picker */
-.amount{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
-.amount-label{font-weight:600;margin-right:4px}
-.chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);
-  font:500 15px/1 var(--body);padding:10px 14px;border-radius:999px;cursor:pointer;font-variant-numeric:tabular-nums;min-height:40px}
-.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.custom{display:flex;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;min-height:40px}
-.custom span{color:var(--muted)}
-.custom input{width:6.5ch;border:0;background:transparent;color:var(--fg);font:500 16px var(--body);padding:8px 2px;outline:none;font-variant-numeric:tabular-nums}
-.custom:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
-.amount-hint{flex-basis:100%;font-size:13px;color:var(--muted);margin:0}
+.amt-field{display:inline-flex;align-items:flex-start;justify-content:center;margin:14px auto 0;cursor:text;
+  font:700 clamp(56px,17vw,76px)/1 var(--display);letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  border-bottom:2px solid transparent;padding:0 4px 6px;transition:border-color .15s}
+.amt-field:focus-within{border-color:var(--ink)}
+.cur{font-size:.5em;line-height:1.25;color:var(--faint);margin-right:2px}
+.amt-field.has .cur{color:var(--ink)}
+#amt{font:inherit;letter-spacing:inherit;color:var(--ink);background:none;border:0;outline:none;padding:0;margin:0;
+  width:1.3ch;min-width:1ch;text-align:left;font-variant-numeric:tabular-nums;caret-color:var(--ok)}
+#amtMeasure{position:absolute;visibility:hidden;white-space:pre;font:inherit;letter-spacing:inherit;font-variant-numeric:tabular-nums}
+.amt-field{position:relative}
+#amt::placeholder{color:var(--faint);opacity:1}
 
-/* grid of methods: reflows automatically as items are added/removed */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch;
-  list-style:none;margin:0;padding:0}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;
-  display:flex;flex-direction:column;gap:14px;min-width:0}
-.top{display:flex;align-items:flex-start;gap:12px;min-width:0}
-.badge{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
-  font:700 19px/1 var(--display)}
-.meta{min-width:0;flex:1}
-.name{font:600 16px/1.2 var(--body)}
-.handle{font:400 14px/1.35 var(--mono);color:var(--muted);overflow-wrap:anywhere;margin-top:3px;user-select:all}
-.actions{display:flex;gap:8px;margin-top:auto}
-.btn{appearance:none;flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);
-  background:var(--sunk);color:var(--fg);font:600 14px/1 var(--body);cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;padding:0 10px;white-space:nowrap}
-.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);flex:1.4}
-.btn.icon{flex:0 0 44px;padding:0}
-.btn:hover{filter:brightness(1.05)}
-.btn:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btn.done{color:var(--ok)}
-.btn svg{width:18px;height:18px;flex:none}
+.chips{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);
+  font:500 15px/1 var(--body);font-variant-numeric:tabular-nums;min-height:44px;min-width:64px;padding:0 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.amt-hint{margin:14px auto 0;font-size:13.5px;color:var(--muted);max-width:34ch;text-wrap:balance}
 
-.sheet{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:color-mix(in srgb,#000 45%,transparent);
+/* ---------- method lists ---------- */
+.group-label{font:600 13.5px/1 var(--body);color:var(--muted);margin:28px 4px 10px}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:center;padding:14px 14px 10px 16px}
+.row + .row{border-top:1px solid var(--line)}
+.badge{grid-row:1 / span 2;align-self:start;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  font:700 18px/1 var(--display)}
+.meta{min-width:0}
+.name{font-weight:600;line-height:1.25}
+.handle{font-size:14px;color:var(--muted);overflow-wrap:anywhere;line-height:1.35;user-select:all}
+.handle.addr{font-family:var(--mono);font-size:13px;letter-spacing:-.01em}
+.net{font-size:12.5px;color:var(--faint);margin-top:1px}
+
+.main{grid-column:3;grid-row:1;appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:44px;padding:0 16px;border-radius:12px;font:600 15px/1 var(--body);text-decoration:none;white-space:nowrap;cursor:pointer;
+  border:1px solid var(--line);background:var(--soft);color:var(--ink);font-variant-numeric:tabular-nums}
+.main.pay{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.main svg{width:16px;height:16px}
+
+.more{grid-column:2 / 4;display:flex;gap:4px;margin-left:-8px}
+.ghost{appearance:none;border:0;background:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 8px;
+  border-radius:8px;font:500 13.5px/1 var(--body);color:var(--muted);cursor:pointer}
+.ghost svg{width:16px;height:16px}
+.ghost:hover{background:var(--soft);color:var(--ink)}
+.ghost.done{color:var(--ok)}
+
+.main:hover{filter:brightness(1.08)}
+.main:focus-visible,.ghost:focus-visible,.chip:focus-visible,.sheet .main:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
+
+.foot{font-size:13px;color:var(--muted);text-align:center;margin:28px auto 0;max-width:34ch;text-wrap:balance}
+
+/* very narrow: fold cover screens */
+@media (max-width:360px){
+  .photo{width:76px;height:76px;margin-bottom:12px}
+  .wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-top:24px}
+  .row{grid-template-columns:36px minmax(0,1fr);padding:12px}
+  .badge{width:36px;height:36px;border-radius:10px;font-size:16px}
+  .main{grid-column:1 / -1;grid-row:auto;margin-top:10px}
+  .more{grid-column:1 / -1;justify-content:center;margin-left:0}
+  .chip{min-width:52px;padding:0 10px}
+}
+
+/* ---------- QR sheet ---------- */
+.sheet{position:fixed;inset:0;z-index:20;display:grid;place-items:safe center;overflow:auto;
+  background:color-mix(in srgb,#000 50%,transparent);
   padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.sheet-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;width:min(100%,320px);
+.sheet-card{background:var(--surface);border-radius:22px;padding:22px;width:min(100%,320px);
   display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .sheet-title{font:700 20px/1.2 var(--display)}
-.sheet-handle{font:400 13px/1.4 var(--mono);color:var(--muted);overflow-wrap:anywhere;max-width:100%}
-.qr-box{background:#fff;padding:12px;border-radius:12px;line-height:0}
+.sheet-handle{font-size:13px;color:var(--muted);overflow-wrap:anywhere;max-width:100%}
+.sheet-handle.addr{font-family:var(--mono)}
+.qr-box{background:#fff;padding:12px;border-radius:14px;line-height:0}
 .qr-box img,.qr-box canvas{width:200px;height:200px;max-width:100%}
 .sheet small{font-size:13px;color:var(--muted)}
-.sheet .btn{width:100%;flex:none}
-
-.net{font-size:12.5px;color:var(--muted);margin-top:4px}
-a,button,input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-@media (max-width:560px){
-  .wrap{gap:16px;padding-top:20px}
-  .avatar{width:52px;height:52px;border-radius:16px;font-size:21px}
-  .who{gap:14px}
-  .amount{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:8px;padding:14px}
-  .amount-label,.custom,.amount-hint{grid-column:1/-1}
-  .chip{padding:10px 0;min-height:44px}
-  .custom{min-height:44px}
-  .custom input{flex:1;width:auto;min-width:0}
-  .card{padding:14px;gap:12px}
-}
-/* very narrow: fold cover screens, small phones */
-@media (max-width:360px){
-  .wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
-  .avatar{width:44px;height:44px;border-radius:14px;font-size:18px}
-  h1{font-size:26px}
-  .amount,.card{padding:12px}
-  .actions{flex-wrap:wrap}
-  .actions .btn.primary{flex:1 1 100%}
-  .badge{width:38px;height:38px;border-radius:10px;font-size:17px}
-}
-/* short screens: phones in landscape */
+.sheet .main{width:100%}
 @media (max-height:480px){
-  .sheet{overflow:auto;place-items:safe center}
   .sheet-card{padding:14px;gap:8px}
   .qr-box img,.qr-box canvas{width:150px;height:150px}
 }
-.foot{text-align:left}
-}
-.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
 
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
-  background:var(--fg);color:var(--bg);font:600 14px var(--body);padding:10px 16px;border-radius:999px;opacity:0;
-  transition:opacity .2s,transform .2s;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);
+  background:var(--ink);color:var(--on-ink);font:600 14px var(--body);padding:10px 16px;border-radius:999px;opacity:0;
+  transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (prefers-reduced-motion:reduce){.toast,.amt-field{transition:none}}
 </style>
-
-<div class="wrap">
-  <header class="who">
-    <div class="avatar" id="avatar"></div>
-    <div class="who-text">
-      <div class="eyebrow" id="count"></div>
-      <h1 id="name"></h1>
-      <p class="note" id="note"></p>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <img class="photo" id="photo" alt="" width="88" height="88" hidden>
+    <h1 id="title"></h1>
+    <p class="note" id="note" hidden></p>
+    <div id="amountBlock" hidden>
+      <label class="amt-field" id="amtField" for="amt">
+        <span class="cur" aria-hidden="true">$</span>
+        <span id="amtMeasure" aria-hidden="true"></span>
+        <input id="amt" inputmode="decimal" placeholder="0" autocomplete="off" maxlength="8" aria-label="Amount in dollars">
+      </label>
+      <div class="chips" id="chips"></div>
+      <p class="amt-hint" id="amtHint"></p>
     </div>
-  </header>
-
-  <p class="setup" id="setup" hidden>These are example handles. Replace them in the <code>METHODS</code> list at the bottom of this page, and set <code>SHOW_SETUP_NOTE</code> to <code>false</code>.</p>
-
-  <section class="amount" id="amount" aria-label="Amount" hidden>
-    <span class="amount-label">Amount</span>
-    <div id="chips" style="display:contents"></div>
-    <label class="custom" for="customAmt"><span>$</span><input id="customAmt" inputmode="decimal" placeholder="Other amount" aria-label="Custom amount"></label>
-    <p class="amount-hint" id="amountHint"></p>
   </section>
 
-  <ul class="grid" id="grid"></ul>
+  <div id="lists"></div>
 
   <p class="foot">Check the name or address before you send. Payments can't be reversed.</p>
-</div>
+</main>
+
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-title" id="sheetTitle"></div>
     <div class="qr-box" id="qrBox"></div>
     <div class="sheet-handle" id="sheetHandle"></div>
     <small id="sheetHint"></small>
-    <button class="btn" type="button" id="sheetClose">Close</button>
+    <button class="main" type="button" id="sheetClose">Close</button>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -160,18 +168,16 @@ a,button,input{touch-action:manipulation;-webkit-tap-highlight-color:transparent
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 /* ============ EDIT THIS ============ */
-const SHOW_SETUP_NOTE = false;
-
 const PROFILE = {
   name: "Chris Tracy",
-  initials: "CT",
-  note: "Use whichever app is easiest for you. Thank you!",
+  note: "",            // optional line under your name; leave "" for none
+  photo: "me.jpg",     // square photo in this folder; leave "" for none
 };
 
-// Amount chips in dollars. Use [] to hide the amount picker.
+// Quick-pick amounts in dollars. Use [] to hide the amount.
 const AMOUNTS = [5, 10, 20, 50];
 
-// Add, remove or reorder. The grid resizes itself.
+// Add, remove or reorder. Crypto goes in its own section automatically.
 // Built-in types: venmo, cashapp, paypal, kofi, zelle, applecash, bitcoin, ethereum, litecoin, solana
 // Custom: { label:"Ko-fi", value:"ko-fi.com/you", url:"https://ko-fi.com/you", color:"#29abe0", letter:"K" }
 const METHODS = [
@@ -212,122 +218,156 @@ let amount = 0;
 const fmt = a => Number.isInteger(a) ? String(a) : a.toFixed(2);
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short = a => a.length > 22 ? a.slice(0, 10) + "…" + a.slice(-8) : a;
+const joinList = xs => xs.length < 3 ? xs.join(" and ") : xs.slice(0,-1).join(", ") + " and " + xs.at(-1);
 
 function resolve(m){
   const t = TYPES[m.type] || {};
   const value = m.value || (t.show ? t.show(m) : "");
-  const copyText = m.address || m.copy || (m.type==="cashapp" ? "$"+m.handle : m.type==="venmo" ? "@"+m.handle : value);
+  const copyText = m.address || m.copy || value;
   const url = m.url || (t.url ? t.url(m, amount) : "");
-  const qrText = t.crypto ? `${t.crypto}:${m.address}` : (m.url || (t.url ? t.url(m, amount) : copyText));
+  const qrText = t.crypto ? `${t.crypto}:${m.address}` : (url || copyText);
   return { label:m.label||t.label||"Payment", letter:m.letter||t.letter||(m.label||"?")[0],
-           color:m.color||t.color||"var(--accent)", fg:m.fg||t.fg||"#fff",
-           value, copyText, url, qrText, amt:!!t.amt, hint:m.hint||t.hint||(t.net?`${t.net} network only`:""), crypto:!!t.crypto };
+           color:m.color||t.color||"var(--ink)", fg:m.fg||t.fg||"#fff",
+           value, copyText, url, qrText, amt:!!t.amt, crypto:!!t.crypto,
+           hint:m.hint||t.hint||(t.net?`${t.net} network only`:"") };
 }
 
-function render(){
-  $("#avatar").textContent = PROFILE.initials;
-  $("#name").textContent = PROFILE.name;
-  $("#note").textContent = PROFILE.note;
-  $("#count").textContent = `${METHODS.length} way${METHODS.length===1?"":"s"} to pay`;
-  $("#setup").hidden = !SHOW_SETUP_NOTE;
-  const anyAmt = METHODS.some(m => TYPES[m.type]?.amt);
-  $("#amount").hidden = !(anyAmt && AMOUNTS.length);
-  const amtApps = METHODS.filter(m => TYPES[m.type]?.amt).map(m => TYPES[m.type].label);
-  const list = amtApps.length < 3 ? amtApps.join(" and ") : amtApps.slice(0,-1).join(", ") + " and " + amtApps.at(-1);
-  $("#amountHint").textContent = `Optional. Fills in the amount for you in ${list}.`;
-  $("#chips").innerHTML = AMOUNTS.map(a => `<button class="chip" type="button" data-amt="${a}" aria-pressed="${amount===a}">$${a}</button>`).join("");
+const amtApps = METHODS.filter(m => TYPES[m.type]?.amt).map(m => TYPES[m.type].label);
 
-  $("#grid").innerHTML = METHODS.map((m,i) => {
-    const r = resolve(m);
-    const openLabel = r.amt ? (amount ? `Pay $${fmt(amount)}` : "Pay") : "Open";
-    return `<li class="card" data-i="${i}">
-      <div class="top">
-        <div class="badge" style="background:${esc(r.color)};color:${esc(r.fg)}" aria-hidden="true">${esc(r.letter)}</div>
-        <div class="meta"><div class="name">${esc(r.label)}</div><div class="handle">${esc(r.value)}</div>${r.crypto ? `<div class="net">${esc(r.hint)}</div>` : ""}</div>
-      </div>
-      <div class="actions">
-        ${r.url ? `<a class="btn primary" href="${esc(r.url)}" target="_blank" rel="noopener">${openLabel} ${ICON.open}</a>` : ""}
-        <button class="btn${r.url?"":" primary"}" type="button" data-act="copy">${ICON.copy}<span>${r.crypto ? "Copy address" : "Copy"}</span></button>
-        <button class="btn icon" type="button" data-act="qr" aria-label="Show QR code for ${esc(r.label)}">${ICON.qr}</button>
-      </div>
-    </li>`;
-  }).join("");
+function rowHTML(m, i){
+  const r = resolve(m);
+  const shown = r.crypto ? short(r.value) : r.value;
+  let main = "";
+  if(r.url && r.amt) main = `<a class="main pay" href="${esc(r.url)}" target="_blank" rel="noopener">${amount ? `Pay $${fmt(amount)}` : "Pay"}</a>`;
+  else if(r.url)     main = `<a class="main" href="${esc(r.url)}" target="_blank" rel="noopener">Open ${ICON.open}</a>`;
+  else               main = `<button class="main" type="button" data-act="copy" data-i="${i}">Copy</button>`;
+  const copyGhost = r.url ? `<button class="ghost" type="button" data-act="copy" data-i="${i}">${ICON.copy}<span>Copy</span></button>` : "";
+  return `<li class="row">
+    <span class="badge" style="background:${esc(r.color)};color:${esc(r.fg)}" aria-hidden="true">${esc(r.letter)}</span>
+    <div class="meta">
+      <div class="name">${esc(r.label)}</div>
+      <div class="handle${r.crypto ? " addr" : ""}" title="${esc(r.value)}">${esc(shown)}</div>
+      ${r.crypto || r.hint ? `<div class="net">${esc(r.hint)}</div>` : ""}
+    </div>
+    ${main}
+    <div class="more">${copyGhost}<button class="ghost" type="button" data-act="qr" data-i="${i}">${ICON.qr}<span>QR code</span></button></div>
+  </li>`;
 }
 
-function toast(msg){
-  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove("show"), 1600);
+function renderLists(){
+  const apps = [], crypto = [];
+  METHODS.forEach((m, i) => (TYPES[m.type]?.crypto ? crypto : apps).push(rowHTML(m, i)));
+  $("#lists").innerHTML =
+    (apps.length ? `<ul class="list" aria-label="Payment apps">${apps.join("")}</ul>` : "") +
+    (crypto.length ? `<h2 class="group-label">Crypto</h2><ul class="list">${crypto.join("")}</ul>` : "");
 }
 
-function selectText(el){
-  const r = document.createRange(); r.selectNodeContents(el);
-  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+function renderChips(){
+  $("#chips").innerHTML = AMOUNTS.map(a =>
+    `<button class="chip" type="button" data-amt="${a}" aria-pressed="${amount===a}">$${a}</button>`).join("");
 }
 
-$("#grid").addEventListener("click", e => {
-  const btn = e.target.closest("button[data-act]"); if(!btn) return;
-  const card = btn.closest(".card"); const r = resolve(METHODS[card.dataset.i]);
-  if(btn.dataset.act === "copy"){
-    const done = () => {
-      btn.classList.add("done"); btn.innerHTML = ICON.check + "<span>Copied</span>";
-      toast(`${r.label} ${r.crypto ? "address" : "handle"} copied`);
-      setTimeout(()=>{ btn.classList.remove("done"); btn.innerHTML = ICON.copy + `<span>${r.crypto ? "Copy address" : "Copy"}</span>`; }, 1600);
-    };
-    const p = navigator.clipboard?.writeText(r.copyText);
-    if(p) p.then(done).catch(()=>{ selectText(card.querySelector(".handle")); toast("Couldn't copy. It's selected, so copy it yourself"); });
-    else { selectText(card.querySelector(".handle")); toast("Couldn't copy. It's selected, so copy it yourself"); }
-  }
-  if(btn.dataset.act === "qr") openQR(card.dataset.i);
-});
-
-let qrIndex = null, lastFocus = null;
-function openQR(i){
-  const r = resolve(METHODS[i]); qrIndex = i;
-  if($("#sheet").hidden) lastFocus = document.activeElement;
-  $("#sheetTitle").textContent = r.amt && amount ? `${r.label} · $${fmt(amount)}` : r.label;
-  $("#sheetHandle").textContent = r.value;
-  $("#sheetHint").textContent = r.hint || "Scan with a phone camera";
-  const box = $("#qrBox"); box.innerHTML = "";
-  if(window.QRCode){
-    new QRCode(box, { text:r.qrText, width:200, height:200, colorDark:"#000000", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
-  } else { box.style.lineHeight="1.4"; box.style.color="#000"; box.textContent = "QR unavailable"; }
-  $("#sheet").hidden = false; $("#sheetClose").focus();
+function sizeInput(){
+  const inp = $("#amt");
+  const m = $("#amtMeasure");
+  m.textContent = inp.value || inp.placeholder;
+  inp.style.width = Math.ceil(m.getBoundingClientRect().width) + 3 + "px";
+  $("#amtField").classList.toggle("has", !!inp.value);
 }
-function closeQR(){ $("#sheet").hidden = true; qrIndex = null; lastFocus?.focus?.(); }
-$("#sheetClose").addEventListener("click", closeQR);
-$("#sheet").addEventListener("click", e => { if(e.target.id === "sheet") closeQR(); });
-document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("#sheet").hidden) closeQR(); });
 
-function setAmount(a){
+function setAmount(a, {fromInput=false} = {}){
   amount = a > 0 ? Math.round(a*100)/100 : 0;
-  render();
+  if(!fromInput){ $("#amt").value = amount ? fmt(amount) : ""; }
+  sizeInput(); renderChips(); renderLists();
+  $("#amtHint").textContent = amount
+    ? `${joinList(amtApps)} will open with $${fmt(amount)} filled in.`
+    : `Optional. ${joinList(amtApps)} will open with it filled in.`;
   try{
     const u = new URL(location.href);
     if(amount) u.searchParams.set("amount", fmt(amount)); else u.searchParams.delete("amount");
     history.replaceState(null, "", u);
   }catch(_){}
 }
-$("#amount").addEventListener("click", e => {
+
+/* ---------- events ---------- */
+$("#amt").addEventListener("input", e => {
+  const inp = e.target;
+  let v = inp.value.replace(/[^\d.]/g, "");
+  const dot = v.indexOf(".");
+  if(dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, "").slice(0, 2);
+  if(v !== inp.value) inp.value = v;
+  const n = parseFloat(v);
+  setAmount(isNaN(n) ? 0 : n, {fromInput:true});
+});
+$("#chips").addEventListener("click", e => {
   const c = e.target.closest(".chip"); if(!c) return;
-  const a = Number(c.dataset.amt); $("#customAmt").value = "";
+  const a = Number(c.dataset.amt);
   setAmount(amount === a ? 0 : a);
 });
-$("#customAmt").addEventListener("input", e => {
-  const v = parseFloat(e.target.value.replace(/[^0-9.]/g,""));
-  amount = 0; setAmount(isNaN(v) ? 0 : v);
-  const inp = $("#customAmt"); inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove("show"), 1600);
+}
+function selectText(el){
+  const r = document.createRange(); r.selectNodeContents(el);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+$("#lists").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-act]"); if(!btn) return;
+  const i = btn.dataset.i, r = resolve(METHODS[i]);
+  if(btn.dataset.act === "qr") return openQR(i);
+  const what = r.crypto ? "address" : "handle";
+  const label = btn.querySelector("span") || btn;
+  const before = label.textContent;
+  const done = () => {
+    btn.classList.add("done"); label.textContent = "Copied";
+    toast(`${r.label} ${what} copied`);
+    setTimeout(()=>{ btn.classList.remove("done"); label.textContent = before; }, 1600);
+  };
+  const fail = () => { selectText(btn.closest(".row").querySelector(".handle")); toast("Couldn't copy. Select and copy it yourself"); };
+  const p = navigator.clipboard?.writeText(r.copyText);
+  p ? p.then(done).catch(fail) : fail();
 });
 
-// Preset amount from the URL, e.g. ?amount=10.50
-(() => {
-  let q = null;
-  try{ q = new URLSearchParams(location.search).get("amount"); }catch(_){}
-  const v = q ? parseFloat(q.replace(/[^0-9.]/g,"")) : NaN;
-  if(!isNaN(v) && v > 0){
-    setAmount(v);
-    if(!AMOUNTS.includes(amount)) $("#customAmt").value = fmt(amount);
-  } else render();
-})();
-</script>
+let lastFocus = null;
+function openQR(i){
+  const r = resolve(METHODS[i]);
+  if($("#sheet").hidden) lastFocus = document.activeElement;
+  $("#sheetTitle").textContent = r.amt && amount ? `${r.label}, $${fmt(amount)}` : r.label;
+  const h = $("#sheetHandle"); h.textContent = r.value; h.classList.toggle("addr", r.crypto);
+  $("#sheetHint").textContent = r.hint || "Scan with a phone camera";
+  const box = $("#qrBox"); box.innerHTML = "";
+  if(window.QRCode){
+    new QRCode(box, { text:r.qrText, width:200, height:200, colorDark:"#000000", colorLight:"#ffffff", correctLevel:QRCode.CorrectLevel.M });
+  } else { box.style.lineHeight="1.4"; box.style.color="#000"; box.textContent = "QR code couldn't load"; }
+  $("#sheet").hidden = false; $("#sheetClose").focus();
+}
+function closeQR(){ $("#sheet").hidden = true; lastFocus?.focus?.(); }
+$("#sheetClose").addEventListener("click", closeQR);
+$("#sheet").addEventListener("click", e => { if(e.target.id === "sheet") closeQR(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("#sheet").hidden) closeQR(); });
 
-</body></html>
+/* ---------- start ---------- */
+$("#title").textContent = `Pay ${PROFILE.name}`;
+document.title = `Pay ${PROFILE.name}`;
+if(PROFILE.photo){
+  const img = $("#photo");
+  img.onload = () => { img.hidden = false; };
+  img.onerror = () => { img.hidden = true; };
+  img.alt = PROFILE.name;
+  img.src = PROFILE.photo;
+}
+if(PROFILE.note){ $("#note").textContent = PROFILE.note; $("#note").hidden = false; }
+$("#amountBlock").hidden = !(amtApps.length && AMOUNTS.length);
+
+let q = null;
+try{ q = new URLSearchParams(location.search).get("amount"); }catch(_){}
+const start = q ? parseFloat(q.replace(/[^0-9.]/g,"")) : NaN;
+setAmount(!isNaN(start) && start > 0 ? start : 0);
+document.fonts?.ready.then(sizeInput);
+</script>
+</body>
+</html>
