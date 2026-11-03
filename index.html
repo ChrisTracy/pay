@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pay Chris Tracy</title>
-<meta name="description" content="Pay Chris Tracy with Venmo, PayPal, Ko-fi or crypto.">
+<meta name="description" content="Pay Chris Tracy with Venmo, Cash App, PayPal, Ko-fi or crypto.">
 <link rel="canonical" href="https://pay.christracy.com/">
 
 <!-- Link previews (iMessage, Slack, Facebook, etc.) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pay Chris Tracy">
 <meta property="og:title" content="Pay Chris Tracy">
-<meta property="og:description" content="Venmo, PayPal, Ko-fi or crypto.">
+<meta property="og:description" content="Venmo, Cash App, PayPal, Ko-fi or crypto.">
 <meta property="og:url" content="https://pay.christracy.com/">
 <meta property="og:image" content="https://pay.christracy.com/og.jpg">
 <meta property="og:image:secure_url" content="https://pay.christracy.com/og.jpg">
@@ -118,6 +118,14 @@ h1{font:600 21px/1.2 var(--display);margin:0;letter-spacing:-.005em}
 .ghost.done{color:var(--ok)}
 
 .main:hover{filter:brightness(1.08)}
+.main:disabled{opacity:.4;cursor:default;filter:none}
+.wrap{position:relative}
+.req{position:absolute;top:max(14px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));
+  appearance:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  display:grid;place-items:center;cursor:pointer;padding:0}
+.req svg{width:18px;height:18px}
+.req:hover{color:var(--ink)}
+.req:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
 .main:focus-visible,.ghost:focus-visible,.chip:focus-visible,.sheet .main:focus-visible{outline:2px solid var(--ok);outline-offset:2px}
 
 .foot{font-size:13px;color:var(--muted);text-align:center;margin:28px auto 0;max-width:34ch;text-wrap:balance}
@@ -160,6 +168,9 @@ h1{font:600 21px/1.2 var(--display);margin:0;letter-spacing:-.005em}
 </head>
 <body>
 <main class="wrap">
+  <button class="req" type="button" id="req" aria-label="Send a payment request" title="Send a payment request" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+  </button>
   <section class="hero">
     <img class="photo" id="photo" alt="" width="88" height="88" hidden>
     <h1 id="title"></h1>
@@ -200,6 +211,9 @@ const PROFILE = {
   photo: "me.jpg",     // square photo in this folder; leave "" for none
 };
 
+// Your live address. Request links you send point here.
+const SITE_URL = "https://pay.christracy.com/";
+
 // Quick-pick amounts in dollars. Use [] to hide the amount.
 const AMOUNTS = [5, 10, 20, 50];
 
@@ -208,7 +222,7 @@ const AMOUNTS = [5, 10, 20, 50];
 // Custom: { label:"Ko-fi", value:"ko-fi.com/you", url:"https://ko-fi.com/you", color:"#29abe0", letter:"K" }
 const METHODS = [
   { type: "venmo",    handle: "christracy" },
-  //{ type: "cashapp",  handle: "" },
+  { type: "cashapp",  handle: "chtrac" },
   { type: "paypal",   handle: "cstracy" },
   { type: "kofi",     handle: "ctracy" },
   { type: "bitcoin",  address: "bc1qevdglv9u656apdpg0sqhzhlws4p8qk8n6q7hk7" },
@@ -218,7 +232,8 @@ const METHODS = [
 
 const TYPES = {
   venmo:   { label:"Venmo",    letter:"V", color:"#008cff", fg:"#fff", show:m=>"@"+m.handle,
-             url:(m,a)=> a ? `https://venmo.com/?txn=pay&recipients=${encodeURIComponent(m.handle)}&amount=${fmt(a)}` : `https://venmo.com/u/${encodeURIComponent(m.handle)}`, amt:true },
+             url:(m,a)=> a ? `https://venmo.com/?txn=pay&recipients=${encodeURIComponent(m.handle)}&amount=${fmt(a)}` : `https://venmo.com/u/${encodeURIComponent(m.handle)}`,
+             app:(m,a)=> `venmo://paycharge?txn=pay&recipients=${encodeURIComponent(m.handle)}${a ? `&amount=${fmt(a)}` : ""}`, amt:true },
   cashapp: { label:"Cash App", letter:"$", color:"#00d64f", fg:"#05210f", show:m=>"$"+m.handle,
              url:(m,a)=> `https://cash.app/$${encodeURIComponent(m.handle)}${a?"/"+fmt(a):""}`, amt:true },
   paypal:  { label:"PayPal",   letter:"P", color:"#0b2f8a", fg:"#fff", show:m=>"paypal.me/"+m.handle,
@@ -252,10 +267,11 @@ function resolve(m){
   const value = m.value || (t.show ? t.show(m) : "");
   const copyText = m.address || m.copy || value;
   const url = m.url || (t.url ? t.url(m, amount) : "");
+  const app = !m.url && t.app ? t.app(m, amount) : "";
   const qrText = t.crypto ? `${t.crypto}:${m.address}` : (url || copyText);
   return { label:m.label||t.label||"Payment", letter:m.letter||t.letter||(m.label||"?")[0],
            color:m.color||t.color||"var(--ink)", fg:m.fg||t.fg||"#fff",
-           value, copyText, url, qrText, amt:!!t.amt, crypto:!!t.crypto,
+           value, copyText, url, app, qrText, amt:!!t.amt, crypto:!!t.crypto,
            hint:m.hint||t.hint||(t.net?`${t.net} network only`:"") };
 }
 
@@ -265,7 +281,7 @@ function rowHTML(m, i){
   const r = resolve(m);
   const shown = r.crypto ? short(r.value) : r.value;
   let main = "";
-  if(r.url && r.amt) main = `<a class="main pay" href="${esc(r.url)}" target="_blank" rel="noopener">${amount ? `Pay $${fmt(amount)}` : "Pay"}</a>`;
+  if(r.url && r.amt) main = `<a class="main pay" href="${esc(r.url)}"${r.app ? ` data-app="${esc(r.app)}"` : ""} target="_blank" rel="noopener">${amount ? `Pay $${fmt(amount)}` : "Pay"}</a>`;
   else if(r.url)     main = `<a class="main" href="${esc(r.url)}" target="_blank" rel="noopener">Open ${ICON.open}</a>`;
   else               main = `<button class="main" type="button" data-act="copy" data-i="${i}">Copy</button>`;
   const copyGhost = r.url ? `<button class="ghost" type="button" data-act="copy" data-i="${i}">${ICON.copy}<span>Copy</span></button>` : "";
@@ -388,6 +404,47 @@ if(PROFILE.photo){
 }
 if(PROFILE.note){ $("#note").textContent = PROFILE.note; $("#note").hidden = false; }
 $("#amountBlock").hidden = !(amtApps.length && AMOUNTS.length);
+
+/* ---------- request mode (only on your phone) ----------
+   Visit SITE_URL?request once on your phone to turn it on; ?request=off turns it off. */
+const OWNER_KEY = "pay-request-mode";
+let owner = false;
+try{
+  const u = new URL(location.href);
+  if(u.searchParams.has("request")){
+    if(u.searchParams.get("request") === "off") localStorage.removeItem(OWNER_KEY);
+    else localStorage.setItem(OWNER_KEY, "1");
+    u.searchParams.delete("request"); history.replaceState(null, "", u);
+  }
+  owner = localStorage.getItem(OWNER_KEY) === "1";
+}catch(_){}
+$("#req").hidden = !owner;
+$("#req").addEventListener("click", async () => {
+  if(!amount){ toast("Pick an amount first"); $("#amt").focus(); return; }
+  const link = `${SITE_URL}?amount=${fmt(amount)}`;
+  const text = `You can pay me $${fmt(amount)} here:`;
+  if(navigator.share){
+    try{ await navigator.share({ title:`Pay ${PROFILE.name}`, text, url:link }); return; }
+    catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  try{ await navigator.clipboard.writeText(`${text} ${link}`); toast("Request link copied"); }
+  catch(_){ prompt("Copy this link", link); }
+});
+
+/* ---------- open payment apps directly on phones ---------- */
+const IS_PHONE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || ""));
+$("#lists").addEventListener("click", e => {
+  const a = e.target.closest("a[data-app]");
+  if(!a || !IS_PHONE) return;
+  e.preventDefault();
+  let left = false;
+  const away = () => { left = true; };
+  document.addEventListener("visibilitychange", away, { once:true });
+  window.addEventListener("pagehide", away, { once:true });
+  location.href = a.dataset.app;                 // opens the app if it's installed
+  setTimeout(() => { if(!left && !document.hidden) location.href = a.href; }, 1500);  // otherwise, the website
+});
 
 let q = null;
 try{ q = new URLSearchParams(location.search).get("amount"); }catch(_){}
